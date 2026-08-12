@@ -2,6 +2,7 @@ import { ArrayField, BooleanField, NumberField, ObjectField, SchemaField, String
 import { addAutoFields } from "../apps/DAEActiveEffectConfig.js";
 import { actionQueue, actorFromUuid, addEffectChange, applyDaeEffects, atlActive, daeSystemClass, effectIsTransfer, enumerateBaseValues, getSelfTarget, geti18nOptions, libWrapper, noDupDamageMacro, removeEffectChange } from "../dae.js";
 import { DAESystem, ValidSpec, wildcardEffects } from "./DAESystem.js";
+import { applyConditionImmunitySuppression } from "./condition-immunity-suppression.js";
 var d20Roll;
 var dice;
 // @ts-expect-error
@@ -1641,15 +1642,7 @@ function determineSuppression() {
             this.isSuppressed = this.isSuppressed || item.areEffectsSuppressed;
     }
     if (this.parent?.system.traits) {
-        let customStats = this.parent.system.traits.ci?.custom?.split(';').map(s => s.trim().toLocaleLowerCase());
-        const ci = new Set([...(this.parent.system.traits?.ci?.value ?? []), ...customStats]);
-        const statusId = foundry.utils.duplicate(this.name ?? "no effect").toLocaleLowerCase();
-        const capStatusId = foundry.utils.duplicate(statusId).replace(statusId[0], statusId[0].toUpperCase());
-        const ciSuppressed = ci?.has(statusId) || ci?.has(`Convenient Effect: ${capStatusId}`);
-        if (Boolean(ciSuppressed)) {
-            this.isSuppressed = true;
-            this.disabled = true;
-        }
+        applyConditionImmunitySuppression(this, this.parent.system.traits.ci);
     }
 }
 function preUpdateItemHook(candidateItem, updates, context, user) {

@@ -1,0 +1,8 @@
+{
+	"name": "dae-regression-tests",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"test": "node --test tests/unit/condition-immunity-suppression.test.js"
+	}
+}
