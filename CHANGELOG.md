@@ -1,3 +1,6 @@
+### 11.3.69
+* Fix for condition immunity suppression incorrectly setting an Active Effect's `disabled` state. Condition immunity now temporarily sets `isSuppressed` without disabling the effect, and removing the immunity restores the effect as expected.
+
 ### 11.3.68
 * Fix for double calling macros when creating an ective effect.
 
