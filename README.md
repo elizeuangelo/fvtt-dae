@@ -389,6 +389,8 @@ These fields accept 0 off, or 1 on.
 | `flags.dae`                           |   CUSTOM    |                                                                                  |
 | `flags.dae.onUpdateTarget`            |   CUSTOM    | See below (special flags.dae)                                                    |
 | `flags.dae.onUpdateSource`            |   CUSTOM    | See below (special flags.dae)                                                    |
+| `flags.dae.mediumArmorDexCapBonus`     |     ADD     | Adds to the maximum Dexterity modifier of equipped medium armor (use `1` for Medium Armor Master). |
+| `flags.dae.ignoreMediumArmorStealthDisadvantage` | OVERRIDE | Prevents equipped medium armor from imposing disadvantage on Stealth checks (use `1` to enable). |
 | `flags.dnd5e.DamageBonusMacro`        |             |                                                                                  |
 | `StatusEffect`                        |   CUSTOM    | Applies/removes default/CE/CUB status effects/conditions. **Strongly Preferred** |
 | `macro.CE`                            |   CUSTOM    | Applies/removes CE Coditions - not really a macro.                               |

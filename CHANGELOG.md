@@ -1,3 +1,6 @@
+### 11.3.70
+* Added DAE flags for Medium Armor Master: a numeric medium-armor Dexterity-cap bonus and a boolean option to ignore medium armor's Stealth disadvantage, including clearing stale armor-derived disadvantage between actor preparation passes.
+
 ### 11.3.69
 * Fix for condition immunity suppression incorrectly setting an Active Effect's `disabled` state. Condition immunity now temporarily sets `isSuppressed` without disabling the effect, and removing the immunity restores the effect as expected.
 

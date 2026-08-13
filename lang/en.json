@@ -411,6 +411,8 @@
       "flags.dnd5e.spellSniper": { "name": "", "description": "" },
       "flags.dnd5e.tavernBrawlerFeat": { "name": "", "description": "" },
       "flags.dnd5e.weaponCriticalThreshold": { "name": "", "description": "" },
+      "flags.dae.ignoreMediumArmorStealthDisadvantage": { "name": "Ignore Medium Armor Stealth Disadvantage", "description": "Prevents equipped medium armor from imposing disadvantage on Stealth checks." },
+      "flags.dae.mediumArmorDexCapBonus": { "name": "Medium Armor Dexterity Cap Bonus", "description": "Adds this value to the maximum Dexterity modifier allowed by equipped medium armor." },
   
       
       "fieldCategories.MidiQOL": "MidiQOL",

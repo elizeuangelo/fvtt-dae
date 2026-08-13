@@ -23,7 +23,9 @@
     "flags.dnd5e.spellCriticalThreshold",
     "flags.dnd5e.spellSniper",
     "flags.dnd5e.tavernBrawlerFeat",
-    "flags.dnd5e.weaponCriticalThreshold"
+    "flags.dnd5e.weaponCriticalThreshold",
+    "flags.dae.ignoreMediumArmorStealthDisadvantage",
+    "flags.dae.mediumArmorDexCapBonus"
   ],
   "MidiQOL": [
     "flags.midi-qol.absorption.acid",

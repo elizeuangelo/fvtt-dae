@@ -3,6 +3,7 @@ import { addAutoFields } from "../apps/DAEActiveEffectConfig.js";
 import { actionQueue, actorFromUuid, addEffectChange, applyDaeEffects, atlActive, daeSystemClass, effectIsTransfer, enumerateBaseValues, getSelfTarget, geti18nOptions, libWrapper, noDupDamageMacro, removeEffectChange } from "../dae.js";
 import { DAESystem, ValidSpec, wildcardEffects } from "./DAESystem.js";
 import { applyConditionImmunitySuppression } from "./condition-immunity-suppression.js";
+import { hasArmorStealthDisadvantage, restoreSourceStealthDisadvantage, withMediumArmorDexCapBonus } from "./medium-armor-master.js";
 var d20Roll;
 var dice;
 // @ts-expect-error
@@ -335,6 +336,8 @@ export class DAESystemDND5E extends CONFIG.DAE.systemClass {
         // delete baseValues["system.attributes.init.bonus"];
         // leaving this in base values works because prepareInitiative is called after applicaiton of derived effects
         delete baseValues["flags"];
+        baseValues["flags.dae.mediumArmorDexCapBonus"] = [new NumberField({ initial: 0 }), modes.ADD];
+        baseValues["flags.dae.ignoreMediumArmorStealthDisadvantage"] = [new BooleanField({ initial: false }), modes.OVERRIDE];
         baseValues["system.traits.ci.all"] = [new BooleanField(), modes.CUSTOM];
         if (!baseValues["system.traits.ci.value"])
             baseValues["system.traits.ci.value"] = [new StringField(), -1];
@@ -524,6 +527,8 @@ export class DAESystemDND5E extends CONFIG.DAE.systemClass {
         libWrapper.register("dae", "CONFIG.Actor.documentClass.prototype.applyActiveEffects", this.applyBaseEffectsFunc, "OVERRIDE");
         // Overide prepareData so it can add the extra pass
         libWrapper.register("dae", "CONFIG.Actor.documentClass.prototype.prepareData", prepareData, "WRAPPER");
+        if (game.system.id === "dnd5e")
+            libWrapper.register("dae", "CONFIG.Actor.documentClass.prototype._prepareArmorClass", prepareArmorClass, "WRAPPER");
         // support other things that can suppress an effect, like condition immunity
         libWrapper.register("dae", "CONFIG.ActiveEffect.documentClass.prototype.determineSuppression", determineSuppression, "OVERRIDE");
         // This supplies DAE custom effects - the main game
@@ -1420,17 +1425,18 @@ function prepareData(wrapped) {
             }
         }
         foundry.utils.setProperty(this, "flags.dae.onUpdateTarget", foundry.utils.getProperty(this._source, "flags.dae.onUpdateTarget"));
+        restoreSourceStealthDisadvantage(this);
         this.overrides = {};
         // Call the original prepare data - with foundry's apply effects replaced by dae's
         wrapped();
         if (foundry.utils.isNewerVersion(systemVersion, "2.99")) {
-            const hasHeavy = this.items.some(i => i.system.equipped && i.system.properties.has("stealthDisadvantage"));
-            if (hasHeavy)
+            const hasStealthDisadvantage = hasArmorStealthDisadvantage(this);
+            if (hasStealthDisadvantage)
                 foundry.utils.setProperty(this, "flags.midi-qol.disadvantage.skill.ste", true);
         }
         else {
-            const hasHeavy = this.items.some(i => i.system.equipped && i.system.stealth);
-            if (hasHeavy)
+            const hasStealthDisadvantage = hasArmorStealthDisadvantage(this, false);
+            if (hasStealthDisadvantage)
                 foundry.utils.setProperty(this, "flags.midi-qol.disadvantage.skill.ste", true);
         }
         // Extra pass of applying effects after prepare data has run to support referencing derived data
@@ -1476,6 +1482,9 @@ function prepareData(wrapped) {
     catch (err) {
         console.error("Could not prepare data ", this.name, err);
     }
+}
+function prepareArmorClass(wrapped, ...args) {
+    return withMediumArmorDexCapBonus(this, () => wrapped(...args));
 }
 function simplifyBonus(bonus, data = {}) {
     if (!bonus)
