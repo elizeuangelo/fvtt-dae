@@ -1,0 +1,62 @@
+on:
+    push:
+        # Sequence of patterns matched against refs/tags
+        tags:
+            - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+
+name: Upload Release Assets
+
+jobs:
+    build:
+        name: Upload Release Asset
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Get the version
+              id: get_version
+              env:
+                  TAG_NAME: ${{ github.ref_name }}
+              run: |
+                  echo "VERSION_NUMBER=${TAG_NAME#v}" >> "$GITHUB_OUTPUT"
+
+            #Substitute the Manifest and Download URLs in the module.json
+            - name: Substitute Manifest and Download Links For Versioned Ones
+              id: sub_manifest_link_version
+              uses: microsoft/variable-substitution@v1
+              with:
+                  files: 'module.json'
+              env:
+                  version: ${{ steps.get_version.outputs.VERSION_NUMBER }}
+                  url: https://github.com/${{ github.repository }}
+                  bugs: https://github.com/${{ github.repository }}/issues
+                  #license: https://raw.githubusercontent.com/${{ github.repository }}/v${{ steps.get_version.outputs.VERSION_NUMBER }}/LICENSE
+                  readme: https://raw.githubusercontent.com/${{ github.repository }}/${{ github.ref_name }}/Readme.md
+                  manifest: https://github.com/${{ github.repository }}/releases/latest/download/module.json
+                  download: https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/module.zip
+
+            - name: Validate release manifest
+              env:
+                  EXPECTED_VERSION: ${{ steps.get_version.outputs.VERSION_NUMBER }}
+                  EXPECTED_DOWNLOAD: https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/module.zip
+              run: |
+                  node -e 'const manifest = require("./module.json"); if (!process.env.EXPECTED_VERSION || manifest.version !== process.env.EXPECTED_VERSION || manifest.download !== process.env.EXPECTED_DOWNLOAD) { console.error({ expectedVersion: process.env.EXPECTED_VERSION, actualVersion: manifest.version, expectedDownload: process.env.EXPECTED_DOWNLOAD, actualDownload: manifest.download }); process.exit(1); }'
+
+            # Zip Files
+            - name: Zip files
+              run: zip -r module * -x ".github/*" "tests/*" "*.ts" "*.md" ".gitignore" "package.json"
+
+            # Create a release for this specific version
+            - name: Create Release
+              id: create_version_release
+              uses: ncipollo/release-action@v1
+              with:
+                  tag: ${{ github.ref_name }}
+                  name: Release ${{ github.ref_name }}
+                  draft: false
+                  prerelease: false
+                  token: ${{ secrets.GITHUB_TOKEN }}
+                  artifacts: 'module.json,./module.zip'
