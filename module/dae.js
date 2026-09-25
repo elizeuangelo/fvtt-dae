@@ -211,7 +211,10 @@ export function applyDaeEffects({ specList = [], completedSpecs = {}, allowAllSp
         c.value = c.value.replace("@stackCount", stackCount)
     */
         if (field === undefined) {
-            field = foundry.utils.getProperty(this, c.key) ?? ValidSpec.actorSpecs[this.type].allSpecsObj[c.key]?.fieldType;
+            // dnd5e computes AC value outside its schema, but DAE registers it as a numeric effect field.
+            // Use that field definition so formulas in AC effects are evaluated before application.
+            const specField = ValidSpec.actorSpecs[this.type].allSpecsObj[c.key]?.fieldType;
+            field = c.key === "system.attributes.ac.value" ? specField : foundry.utils.getProperty(this, c.key) ?? specField;
         }
         if (!(field instanceof NumberField))
             c.value = c.value.replace("@stackCount", stackCount);

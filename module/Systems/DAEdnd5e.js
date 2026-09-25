@@ -4,6 +4,7 @@ import { actionQueue, actorFromUuid, addEffectChange, applyDaeEffects, atlActive
 import { DAESystem, ValidSpec, wildcardEffects } from "./DAESystem.js";
 import { applyConditionImmunitySuppression } from "./condition-immunity-suppression.js";
 import { hasArmorStealthDisadvantage, restoreSourceStealthDisadvantage, withMediumArmorDexCapBonus } from "./medium-armor-master.js";
+import { addLevelRollData } from "./level-roll-data.js";
 var d20Roll;
 var dice;
 // @ts-expect-error
@@ -1346,7 +1347,7 @@ function doItemApplyEffects(includeKeys, excludeKeys, overrides) {
 }
 function getRollData(wrapped, ...args) {
     // Can only have one getRollData wrapper so need call the parent one by hand
-    const data = DAESystem.getRollDataFunc().bind(this)(wrapped, ...args);
+    const data = addLevelRollData(this.type, DAESystem.getRollDataFunc().bind(this)(wrapped, ...args));
     if (!data.flags) {
         data.flags = { ...this.flags };
     }

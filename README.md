@@ -62,6 +62,7 @@ DAE does add some features to core active effects, so if the following features 
 - The ability to call macros when active effects are applied to an actor.
 - Several short hand CUSTOM effects to simplify giving all damage immunities and so on.
 - DAE makes the actor flags available in actor.getRollData(), so you can dereference @flags. in expressions
+- For dnd5e characters and NPCs, `@details.crOrLevel` resolves to character level or NPC CR. `@details.effectiveLevel` resolves to character level or NPC CR + 3. NPC CR 0 remains 0 for `crOrLevel`. These values are available in actor roll data and update when level or CR changes.
 - [Create items tied to an ActiveEffect](##Creating-items-with-DAE), so when the ActiveEffect is deleted, the item disappears as well. Useful for transformations or conjured weapons.
 
 # Index
